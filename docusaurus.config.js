@@ -20,7 +20,7 @@ const config = {
     v4: true,
   },
 
-  url: 'https://content-studio-docs.example.com',
+  url: 'https://docs-production-40b1.up.railway.app',
   baseUrl: '/',
 
   organizationName: 'govambam',
