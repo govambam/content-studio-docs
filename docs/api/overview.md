@@ -41,6 +41,7 @@ app.route("/api",                comments);      // comment routes
 app.route("/api",                assets);        // asset routes
 app.route("/api/invites",        invites);
 app.route("/api/webhooks/sentry", sentryWebhook);
+app.route("/api/views",          views);        // export routes
 ```
 
 **Why `./instrument.js` is imported first:** Sentry's SDK patches Node

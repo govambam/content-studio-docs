@@ -65,6 +65,10 @@ footer:
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
   visible (not gated by a feature flag).
+- **Export** — the "Export" dropdown in the Kanban board header lets you
+  download the current view as a PDF or PNG file. The board is captured
+  client-side with `html2canvas` and sent to `POST /api/views/export`
+  for file generation. See [API routes — Views](./api/routes.md#views--appsapisrcroutesviewsts).
 
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
