@@ -313,3 +313,37 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views
+
+Routes defined in `apps/api/src/routes/views.ts`.
+
+### POST /api/views/export
+
+Export the current board view as a PDF or PNG file.
+
+The client captures the board with `html2canvas` and sends the base-64 encoded PNG to this endpoint. When `format` is `"pdf"`, the server wraps the image in a PDF document using `pdfkit`; when `format` is `"png"`, the raw image is returned directly.
+
+**Body** — validated by `exportViewSchema`
+
+```ts
+{
+  viewName: string;       // display name of the view (used in the filename)
+  imageData: string;      // base-64 encoded PNG data-URI
+  format: "pdf" | "png";  // desired output format
+}
+```
+
+**Response**
+
+| Status | Description |
+|--------|-------------|
+| 200    | Binary file download. `Content-Disposition` header is set to `attachment; filename="content-studio-<slug>-YYYY-MM-DD.<ext>"`. |
+| 400    | Validation error — the request body does not match `exportViewSchema`. |
+| 500    | PDF generation failed. |
+
+:::caution
+The `imageData` field can be large. Ensure the client does not exceed any request-size limits configured by the API gateway or reverse proxy.
+:::
