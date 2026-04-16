@@ -252,6 +252,47 @@ event.
 
 ---
 
+## Views — `apps/api/src/routes/views.ts`
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export`
+
+Export the current board view as a downloadable PDF or PNG file. The client
+captures the target DOM element as a base-64-encoded PNG using `html2canvas`
+and sends it here; the server either returns the image as-is (PNG) or wraps
+it in a one-page PDF with a header line via `pdfkit`.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base-64 PNG (no data-URL prefix)
+  viewName: string;    // non-empty, used in filename and PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Response (binary):** the file is returned directly as an attachment
+(`Content-Disposition: attachment`). This route does **not** use the
+`ApiResponse<T>` envelope.
+
+| Format | Content-Type      | Filename pattern                                  |
+|--------|-------------------|---------------------------------------------------|
+| `pdf`  | `application/pdf` | `content-studio-<slug>-<YYYY-MM-DD>.pdf`          |
+| `png`  | `image/png`       | `content-studio-<slug>-<YYYY-MM-DD>.png`          |
+
+`<slug>` is derived from `viewName` (lowercased, stripped of diacritics,
+non-alphanumerics replaced with hyphens, max 64 chars).
+
+**Error responses:**
+- `400 { data: null, error: "imageData decoded to empty buffer" }` — the
+  base-64 string decoded to zero bytes.
+- `400 { data: null, error: "<zod message>" }` — body validation failed.
+- `500 { data: null, error: "failed to build pdf" }` — `pdfkit` threw
+  while building the document (logged server-side).
+
+---
+
 ## Invites — `apps/api/src/routes/invites.ts`
 
 Mounted at `/api/invites`. Demo-only; surfaces in the UI only when the

@@ -39,6 +39,7 @@ app.route("/api/projects",       projects);
 app.route("/api",                tickets);       // ticket + activity routes
 app.route("/api",                comments);      // comment routes
 app.route("/api",                assets);        // asset routes
+app.route("/api/views",          views);         // view export (PDF / PNG)
 app.route("/api/invites",        invites);
 app.route("/api/webhooks/sentry", sentryWebhook);
 ```

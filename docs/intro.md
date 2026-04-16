@@ -68,6 +68,14 @@ footer:
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
 
+### Export
+
+The **Export** button in the Home view header lets you download the current
+Kanban board as a PDF or PNG. Capture happens client-side with `html2canvas`;
+the base-64 image is sent to `POST /api/views/export`, which returns the
+file as a binary download. See [API routes — Views](./api/routes.md#views--appsapiscroutesviewsts)
+for request/response details.
+
 ### Observability
 
 - **Sentry** (`@sentry/node` in the API) captures unhandled errors via
