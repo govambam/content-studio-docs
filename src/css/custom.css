@@ -28,3 +28,23 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/*
+ * Apply via sidebar_class_name: doc-new in doc frontmatter. Remove the
+ * field once the doc is no longer new. Docusaurus puts the class on the
+ * sidebar <li>, so we target the child .menu__link to render the badge.
+ */
+.doc-new > .menu__link::after {
+  content: 'NEW';
+  margin-left: auto;
+  padding: 1px 6px;
+  background-color: #16a34a;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
