@@ -14,7 +14,7 @@ const config = {
     v4: true,
   },
 
-  url: 'https://docs-production-40b1.up.railway.app',
+  url: 'https://content-studio-docs.vercel.app',
   baseUrl: '/',
   trailingSlash: false,
 
