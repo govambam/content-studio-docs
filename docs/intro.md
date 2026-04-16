@@ -53,6 +53,21 @@ Every mutating write goes through the API, which uses the **service-role**
 key server-side. This keeps RLS off the hot path and centralizes activity
 event writes on the server.
 
+## Sidebar
+
+The sidebar provides project navigation and quick-access actions in its
+footer:
+
+- **Invite Teammate** — opens the invite flow so you can add collaborators
+  to your workspace.
+- **Docs** — opens the Content Studio documentation site in a new browser
+  tab. The button links to the hosted docs at
+  `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
+  visible (not gated by a feature flag).
+
+The `DocsButton` component lives in
+`apps/web/src/components/DocsButton.tsx`.
+
 ### Observability
 
 - **Sentry** (`@sentry/node` in the API) captures unhandled errors via
