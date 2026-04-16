@@ -1,12 +1,6 @@
 // @ts-check
-// `@type` JSDoc annotations allow editor autocompletion and type checking
-// (when paired with `@ts-check`).
-// There are various equivalent ways to declare your Docusaurus config.
-// See: https://docusaurus.io/docs/api/docusaurus-config
 
 import {themes as prismThemes} from 'prism-react-renderer';
-
-// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const REPO_URL = 'https://github.com/govambam/content-studio-docs';
 
@@ -22,6 +16,7 @@ const config = {
 
   url: 'https://docs-production-40b1.up.railway.app',
   baseUrl: '/',
+  trailingSlash: false,
 
   organizationName: 'govambam',
   projectName: 'content-studio-docs',
