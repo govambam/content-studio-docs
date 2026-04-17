@@ -313,3 +313,42 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Export the current board view as a downloadable PDF or PNG file. The
+client captures the board with `html2canvas`, sends the base64 image to
+this endpoint, and receives a binary file attachment in response.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data-URL prefix)
+  viewName: string;    // non-empty, used in the filename and PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Response (binary download):**
+- `Content-Type`: `application/pdf` or `image/png`
+- `Content-Disposition`: `attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"`
+
+Where `<slug>` is a URL-safe version of `viewName` (lowercased,
+non-alphanumeric replaced with hyphens, max 64 chars).
+
+When `format` is `"pdf"`, the image is embedded in a single-page Letter
+PDF with the header `Content Studio — {viewName} — {date}`, built with
+`pdfkit`.
+
+**Error responses:**
+- `400` — validation failure (missing fields, invalid base64, empty
+  buffer after decode).
+- `500` — PDF build failure (logged as `pdf_export_failed`).
+
+**UI:** the `ExportMenu` component (`apps/web/src/components/ExportMenu.tsx`)
+renders in the Kanban board header alongside the "New Project" button. It
+provides a dropdown with "Export as PDF" and "Export as PNG" options.
