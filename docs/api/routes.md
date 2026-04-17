@@ -313,3 +313,35 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Capture the current board view and download it as a **PDF** or **PNG**.
+
+The client uses `html2canvas` to screenshot the Kanban board, encodes the
+image as base64, then POSTs it here. For PNG requests the raw image bytes
+are returned directly. For PDF requests the image is wrapped in a
+Letter-sized page via `pdfkit` with a header line
+(`Content Studio — <viewName> — <date>`).
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data-URL prefix)
+  viewName: string;    // non-empty; used in filename and PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Responses:**
+- **200** — binary file download with headers:
+  - `Content-Type`: `application/pdf` or `image/png`
+  - `Content-Disposition`: `attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"`
+- **400** `{ data: null, error: "..." }` — validation failed or `imageData` decoded to an empty buffer.
+- **500** `{ data: null, error: "failed to build pdf" }` — `pdfkit` build error (PDF format only).
