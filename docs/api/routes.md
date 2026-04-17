@@ -282,6 +282,50 @@ flow — see [Sentry](../integrations/sentry.md).
 
 ---
 
+## Views — `apps/api/src/routes/views.ts`
+
+<span class="badge-new">NEW</span>
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export`
+
+<span class="badge-new">NEW</span>
+
+Export the current board view as a downloadable PNG or PDF. The client
+captures the Kanban board with `html2canvas`, sends the base-64 image to
+this endpoint, and receives a file attachment in return.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base-64-encoded PNG captured by the client
+  viewName: string;    // display name used in the PDF header and filename
+  format: "pdf" | "png";
+}
+```
+
+**Responses:**
+
+- **200** — binary file returned as an attachment.
+  - `Content-Type`: `application/pdf` or `image/png`.
+  - `Content-Disposition`: `attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"`.
+  - When `format` is `"pdf"`, the image is embedded in a single-page
+    Letter-size PDF with a header line:
+    `Content Studio — <viewName> — <YYYY-MM-DD>`.
+  - When `format` is `"png"`, the decoded image bytes are returned as-is.
+- **400** `{ data: null, error: "..." }` — validation failure or empty
+  `imageData`.
+- **500** `{ data: null, error: "failed to build pdf" }` — `pdfkit`
+  failed to render the PDF.
+
+:::caution Browser limitations
+The client capture step uses `html2canvas`, which may produce lower-fidelity
+screenshots if the board contains cross-origin images or complex CSS.
+:::
+
+---
+
 ## Sentry webhook — `apps/api/src/routes/sentryWebhook.ts`
 
 ### `POST /api/webhooks/sentry`

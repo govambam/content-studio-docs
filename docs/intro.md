@@ -68,6 +68,19 @@ footer:
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
 
+### Export
+
+<span class="badge-new">NEW</span>
+
+The **Export** dropdown in the board header lets you download the current
+Kanban view as a **PNG** screenshot or a **PDF** document. The client
+captures the board with `html2canvas` and sends the image to
+[`POST /api/views/export`](./api/routes.md#post-apiviewsexport), which
+returns the file as a named attachment.
+
+The `ExportMenu` component lives in
+`apps/web/src/components/ExportMenu.tsx`.
+
 ### Observability
 
 - **Sentry** (`@sentry/node` in the API) captures unhandled errors via
