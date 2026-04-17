@@ -30,15 +30,20 @@
 }
 
 /*
- * Apply via sidebar_class_name: doc-new in doc frontmatter. Remove the
- * field once the doc is no longer new. Docusaurus puts the class on the
- * sidebar <li>, so we target the child .menu__link to render the badge.
+ * "NEW" badge. To flag any doc or section as new, add this one line
+ * directly below the heading:
+ *
+ *   <span class="badge-new">NEW</span>
+ *
+ * Delete the line when the doc is no longer new. Multiple docs or
+ * sections can carry the badge at the same time — no global limit.
  */
-.doc-new > .menu__link::after {
-  content: 'NEW';
-  margin-left: auto;
+.badge-new {
+  display: inline-block;
   padding: 1px 6px;
-  background-color: #16a34a;
+  margin-left: 0.5em;
+  margin-top: -0.25em;
+  vertical-align: middle;
   color: #ffffff;
   font-size: 9px;
   font-weight: 700;
@@ -46,5 +51,9 @@
   text-transform: uppercase;
   line-height: 1.5;
   border-radius: 3px;
-  flex-shrink: 0;
+  /* Reset heading-inherited styles so the pill reads as a badge, not a
+     shrunken continuation of the heading. */
+  font-family: var(--ifm-font-family-base);
+  font-style: normal;
+  text-decoration: none;
 }
