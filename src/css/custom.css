@@ -30,14 +30,19 @@
 }
 
 /*
- * Apply via sidebar_class_name: doc-new in doc frontmatter. Remove the
- * field once the doc is no longer new. Docusaurus puts the class on the
- * sidebar <li>, so we target the child .menu__link to render the badge.
+ * Inline "NEW" badge for highlighting the most recent addition in a doc
+ * body. Drop <span class="badge-new">NEW</span> next to the heading (or
+ * any inline text) you want to call out.
+ *
+ * Convention: only ONE place in the entire docs site should carry this
+ * badge at a time — the single newest addition. Whoever adds the next
+ * new thing must remove the previous occurrence.
  */
-.doc-new > .menu__link::after {
-  content: 'NEW';
-  margin-left: auto;
+.badge-new {
+  display: inline-block;
+  margin-left: 0.5em;
   padding: 1px 6px;
+  vertical-align: middle;
   background-color: #16a34a;
   color: #ffffff;
   font-size: 9px;
@@ -46,5 +51,9 @@
   text-transform: uppercase;
   line-height: 1.5;
   border-radius: 3px;
-  flex-shrink: 0;
+  /* Reset heading-inherited styles so the pill reads as a badge, not a
+     shrunken continuation of the heading. */
+  font-family: var(--ifm-font-family-base);
+  font-style: normal;
+  text-decoration: none;
 }
