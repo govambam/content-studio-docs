@@ -30,27 +30,30 @@
 }
 
 /*
- * "NEW" badge. To flag any doc or section as new, add this one line
- * directly below the heading:
+ * "NEW" badge. To flag any doc or section as new, place this span
+ * INLINE at the end of the heading, with a space before it:
  *
- *   <span class="badge-new">NEW</span>
+ *   ## My new section <span class="badge-new">NEW</span>
  *
- * Delete the line when the doc is no longer new. Multiple docs or
- * sections can carry the badge at the same time — no global limit.
+ * This makes the pill sit next to the heading and also renders it in
+ * the right-side "on this page" table of contents (Docusaurus mirrors
+ * heading content into the ToC).
+ *
+ * Delete the span when the content is no longer new. Multiple headings
+ * can carry the badge at the same time — no global limit.
  */
 .badge-new {
   display: inline-block;
-  padding: 1px 6px;
+  padding: 2px 8px;
   margin-left: 0.5em;
-  margin-top: -0.25em;
   vertical-align: middle;
   background-color: #16a34a;
   color: #ffffff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  line-height: 1.5;
+  line-height: 1.4;
   border-radius: 3px;
   /* Reset heading-inherited styles so the pill reads as a badge, not a
      shrunken continuation of the heading. */
