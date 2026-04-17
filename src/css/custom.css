@@ -30,18 +30,18 @@
 }
 
 /*
- * Inline "NEW" badge for highlighting the most recent addition in a doc
- * body. Drop <span class="badge-new">NEW</span> next to the heading (or
- * any inline text) you want to call out.
+ * "NEW" badge. To flag any doc or section as new, add this one line
+ * directly below the heading:
  *
- * Convention: only ONE place in the entire docs site should carry this
- * badge at a time — the single newest addition. Whoever adds the next
- * new thing must remove the previous occurrence.
+ *   <span class="badge-new">NEW</span>
+ *
+ * Delete the line when the doc is no longer new. Multiple docs or
+ * sections can carry the badge at the same time — no global limit.
  */
 .badge-new {
   display: inline-block;
-  margin-left: 0.5em;
   padding: 1px 6px;
+  margin-top: -0.25em;
   vertical-align: middle;
   background-color: #16a34a;
   color: #ffffff;
