@@ -316,7 +316,7 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
 
 ---
 
-## Views — `apps/api/src/routes/views.ts`
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
 
 Mounted at `/api/views`.
 

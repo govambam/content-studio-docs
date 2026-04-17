@@ -67,7 +67,7 @@ footer:
 - **Export** — the "Export" dropdown in the Kanban board header lets you
   download the current view as a PDF or PNG file. The board is captured
   client-side with `html2canvas` and sent to `POST /api/views/export`
-  for file generation. See [API routes — Views](./api/routes.md#views--appsapisrcroutesviewsts).
+  for file generation. See [API routes — Views](./api/routes.md#views--appsapisrcroutesviewsts-new).
 
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
