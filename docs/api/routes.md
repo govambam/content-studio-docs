@@ -313,3 +313,42 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Exports the current board view as a downloadable PDF or PNG file. The web
+client captures the Kanban board with `html2canvas`, strips the data-URL
+prefix, and POSTs the raw base64 image data to this endpoint.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data: prefix), non-empty
+  viewName: string;    // non-empty, trimmed — used in the filename & PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Response (success):**
+Binary file download. Headers:
+- `Content-Type`: `application/pdf` or `image/png`
+- `Content-Disposition`: `attachment; filename="content-studio-<slug>-YYYY-MM-DD.<ext>"`
+
+The `<slug>` is a lowercased, NFKD-normalized, hyphenated form of `viewName`
+(max 64 chars).
+
+**Error responses:**
+- `400` — payload fails `exportViewSchema` validation **or** `imageData`
+  decodes to an empty buffer.
+- `500` — PDF generation via `pdfkit` failed (logged as `pdf_export_failed`).
+
+When `format` is `"pdf"`, the endpoint wraps the decoded PNG in a
+single-page LETTER-sized PDF with a header line
+(`Content Studio — <viewName> — YYYY-MM-DD`) using `pdfkit`. When
+`format` is `"png"`, the decoded buffer is returned as-is.
