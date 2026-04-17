@@ -282,6 +282,44 @@ flow — see [Sentry](../integrations/sentry.md).
 
 ---
 
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Export the current board view as a PDF or PNG file. The client captures the
+Kanban board with `html2canvas` and sends the base64-encoded PNG to this
+endpoint. When `format` is `"pdf"`, the server wraps the image in a
+single-page PDF (letter size, 48 pt margins) with a header line
+`Content Studio — {viewName} — {YYYY-MM-DD}` using `pdfkit`. When `format`
+is `"png"`, the raw image bytes are returned as-is.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG — no data-URL prefix
+  viewName: string;    // non-empty, trimmed — used in filename and PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Success response:**
+Binary file download with headers:
+- `Content-Type`: `application/pdf` or `image/png`
+- `Content-Disposition`: `attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"`
+
+**Error responses:**
+- **400** `{ data: null, error: "..." }` — validation failure (missing field,
+  empty `imageData`, non-base64 characters).
+- **500** `{ data: null, error: "failed to build pdf" }` — `pdfkit` could not
+  render the image into a PDF.
+
+> **Note:** this route returns a raw binary body on success, not the usual
+> `ApiResponse<T>` JSON envelope.
+
+---
+
 ## Sentry webhook — `apps/api/src/routes/sentryWebhook.ts`
 
 ### `POST /api/webhooks/sentry`
