@@ -313,3 +313,42 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/views`. Provides export capabilities for board views.
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Export the current board view as a PDF or PNG file. The client captures
+the board using `html2canvas`, converts it to a base64 PNG, and POSTs
+it here. The server either passes the PNG through or wraps it in a PDF
+using `pdfkit`.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data-URL prefix)
+  viewName: string;    // non-empty, trimmed — used in the filename & PDF header
+  format: "pdf" | "png";
+}
+```
+
+**Response (binary download):**
+- `Content-Type`: `application/pdf` or `image/png`
+- `Content-Disposition`: `attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"`
+
+The filename slug is derived from `viewName` (lowercased, normalized,
+non-alphanumeric characters replaced with hyphens, max 64 chars).
+
+**Error responses:**
+- `400` — validation failure or `imageData` decodes to an empty buffer.
+- `500` — PDF build failed (logged as `pdf_export_failed`).
+
+:::note
+This endpoint does **not** use the standard `ApiResponse<T>` envelope —
+it streams the file bytes directly with appropriate `Content-Type` and
+`Content-Disposition` headers.
+:::
