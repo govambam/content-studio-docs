@@ -313,3 +313,43 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/views`.
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Export the current board view as a PDF or PNG file. The web client
+captures the Kanban board with `html2canvas`, strips the data-URL prefix,
+and POSTs the raw base64 string here.
+
+**Body** (`exportViewSchema`):
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data:… prefix)
+  viewName:  string;   // non-empty, trimmed — used in the filename
+  format:    "pdf" | "png";
+}
+```
+
+**Response 200:** binary attachment download.
+- Content-Type: `application/pdf` or `image/png`
+- Content-Disposition:
+  `attachment; filename="content-studio-<slug>-YYYY-MM-DD.<ext>"`
+
+  `<slug>` is the `viewName` lowercased, stripped of diacritics, and
+  collapsed to `[a-z0-9-]` (max 64 chars). `<ext>` is `pdf` or `png`.
+
+**Error responses:**
+- `400` — payload fails `exportViewSchema` validation (missing fields,
+  non-base64 characters, invalid format value).
+- `500` — PDF build failure (only when `format` is `"pdf"`).
+
+:::tip Client component
+The `<ExportMenu>` component (`apps/web/src/components/ExportMenu.tsx`)
+renders the toolbar button and dropdown. It accepts a `viewName` string
+and a `getTarget` callback that returns the DOM node to capture.
+:::
