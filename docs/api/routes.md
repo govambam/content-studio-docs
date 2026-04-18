@@ -313,3 +313,33 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Export the current board view as a downloadable PDF or PNG file.
+
+### POST /api/views/export <span class="badge-new">NEW</span>
+
+Captures the current Kanban board and returns it as a file download.
+
+**Body:**
+
+```ts
+{
+  imageData: string;   // base64-encoded PNG (no data-URL prefix)
+  viewName:  string;   // human-readable view name (used in filename & PDF header)
+  format:    "pdf" | "png";
+}
+```
+
+Validated with `exportViewSchema` (Zod).
+
+**Response:**
+
+| Status | Description |
+|--------|-------------|
+| **200** | Binary file download (`Content-Type: application/pdf` or `image/png`; `Content-Disposition: attachment; filename="content-studio-{slug}-{YYYY-MM-DD}.{ext}"`) |
+| **400** | `{ data: null, error: "..." }` — validation failure or empty `imageData` buffer |
+| **500** | `{ data: null, error: "failed to build pdf" }` — PDF generation error |
