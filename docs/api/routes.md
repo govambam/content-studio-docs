@@ -313,3 +313,56 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/views/export` <span class="badge-new">NEW</span>
+
+Export the current board view as a downloadable PDF or PNG file.
+
+The front-end captures the visible board with `html2canvas`, base64-encodes the
+resulting PNG, and POSTs it to this endpoint. When PDF format is requested the
+server wraps the image in a letter-sized PDF (via `pdfkit`) with a header line
+showing the view name and date.
+
+**Body:**
+
+```json
+{
+  "imageData": "<base64-encoded PNG — no data-URL prefix>",
+  "viewName": "Home",
+  "format": "pdf" | "png"
+}
+```
+
+| Field       | Type                | Required | Notes                                                        |
+|-------------|---------------------|----------|--------------------------------------------------------------|
+| `imageData` | `string`            | Yes      | Raw base64 (no `data:image/png;base64,` prefix).             |
+| `viewName`  | `string`            | Yes      | Used in the PDF header and the download filename slug.        |
+| `format`    | `"pdf"` \| `"png"`  | Yes      | Determines the `Content-Type` and file extension returned.    |
+
+**Response 200** — binary file download
+
+| Header               | Value                                                        |
+|----------------------|--------------------------------------------------------------|
+| `Content-Type`       | `application/pdf` or `image/png`                             |
+| `Content-Disposition`| `attachment; filename="content-studio-<slug>-YYYY-MM-DD.<ext>"` |
+
+**Response 400** — validation error (e.g. missing fields, empty buffer)
+
+```json
+{
+  "data": null,
+  "error": "imageData decoded to empty buffer"
+}
+```
+
+**Response 500** — PDF generation failure
+
+```json
+{
+  "data": null,
+  "error": "failed to build pdf"
+}
