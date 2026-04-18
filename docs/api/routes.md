@@ -313,3 +313,40 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Views — `apps/api/src/routes/views.ts` <span class="badge-new">NEW</span>
+
+Export the current board view as a PDF or PNG file.
+
+The client captures the visible Kanban board with `html2canvas`, sends the
+base-64-encoded PNG to this endpoint, and receives a file download in return.
+
+### `POST /views/export`
+
+Accept a base-64-encoded PNG screenshot and return it as-is (PNG) or wrapped in
+a PDF page (PDF).
+
+**Body** — validated by `exportViewSchema`
+
+```ts
+{
+  imageData: string;  // base-64 encoded PNG (no data-URL prefix)
+  viewName:  string;  // human-readable view name, e.g. "Home"
+  format:    "pdf" | "png";
+}
+```
+
+**Response**
+
+| Status | Description |
+|--------|-------------|
+| `200`  | Binary file download. `Content-Disposition: attachment; filename="content-studio-<slug>-<YYYY-MM-DD>.<ext>"` |
+| `400`  | Zod validation failure or empty image buffer. Returns `ApiResponse` with error message. |
+| `500`  | PDF generation failed. Returns `ApiResponse` with `"failed to build pdf"`. |
+
+When `format` is `"png"` the decoded buffer is returned directly with
+`Content-Type: image/png`. When `format` is `"pdf"`, the image is embedded in a
+single-page Letter-sized PDF (built with `pdfkit`) headed by
+`Content Studio — <viewName> — <date>`.
