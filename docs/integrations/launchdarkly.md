@@ -95,7 +95,7 @@ export function InviteTeammateButton() {
 
 ## The `demo-error-trigger-button` flag
 
-This is the one flag the app checks today. It gates the **Invite
+This is the original flag the app shipped with. It gates the **Invite
 Teammate** entry point in the sidebar, which is the demo's entry into
 the intentional Sentry error.
 
@@ -110,6 +110,24 @@ the intentional Sentry error.
 
 See [Sentry](./sentry.md) for the full error-capture flow and
 [API routes → Invites](../api/routes.md#invites--appsapisrcroutesinvitests)
+for the endpoint spec.
+
+## The `slack-ticket-notifications` flag <span class="badge-new">NEW</span>
+
+Gates the **Slack Integration** modal in the sidebar and the
+fire-and-forget webhook call that runs after a ticket status change.
+
+| Property | Value |
+|---|---|
+| LD key | `slack-ticket-notifications` |
+| Key in code (camelCase) | `slackTicketNotifications` |
+| Type | Boolean |
+| Default when unresolved | `false` |
+| Controls | Whether `<SlackIntegrationModal>` is accessible from the sidebar and whether `notifyTicketStatusChange` fires after a ticket PUT |
+| Notification flow | Flag on → operator configures webhook in the modal → ticket moves to an enabled status → Block Kit message posted to webhook → `slack_notification_posted` activity event recorded |
+
+See [Slack integration](./slack.md) for the full feature description and
+[API routes → Slack Integration](../api/routes.md#slack-integration--appsapisrcroutesslackintegrationsts)
 for the endpoint spec.
 
 ## Env vars it reads
