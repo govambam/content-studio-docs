@@ -282,6 +282,43 @@ flow — see [Sentry](../integrations/sentry.md).
 
 ---
 
+## Slack Integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. Manages the singleton Slack
+Incoming Webhook configuration used for ticket status notifications.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns the current configuration summary. The webhook URL is **redacted**
+in the response (only the last 6 characters are visible).
+
+**Response:** `ApiResponse<SlackIntegrationSummary | null>` — `null` when
+no integration has been configured.
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Upsert the Slack integration configuration.
+
+**Body** (`upsertSlackIntegrationSchema`):
+```ts
+{
+  webhookUrl: string;            // Slack Incoming Webhook URL
+  channel: string;               // Display label for the target channel
+  enabledStatuses: string[];     // e.g. ["in_review", "done"]
+  enabled: boolean;              // Master on/off toggle
+}
+```
+
+**Response:** `ApiResponse<SlackIntegration>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration row entirely.
+
+**Response:** `ApiResponse<null>`.
+
+---
+
 ## Sentry webhook — `apps/api/src/routes/sentryWebhook.ts`
 
 ### `POST /api/webhooks/sentry`
