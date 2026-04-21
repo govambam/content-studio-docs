@@ -252,6 +252,44 @@ event.
 
 ---
 
+## Slack integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. Manages a singleton row in the
+`slack_integrations` table that stores the Slack Incoming Webhook
+configuration used to post ticket-status notifications.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns a redacted summary of the current integration. The webhook URL is
+**write-only** — it is never returned to the client.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>` (returns `null` data
+with no error if no row exists).
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Upsert the integration configuration.
+
+**Body:**
+```ts
+{
+  webhook_url: string;        // Slack Incoming Webhook URL
+  channel_name?: string;      // display-only label shown in the UI
+  enabled: boolean;           // master on/off toggle
+  enabled_statuses: string[]; // e.g. ["in_review", "done"]
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration row entirely.
+
+**Response:** `ApiResponse<null>`.
+
+---
+
 ## Invites — `apps/api/src/routes/invites.ts`
 
 Mounted at `/api/invites`. Demo-only; surfaces in the UI only when the
