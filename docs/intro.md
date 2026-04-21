@@ -60,6 +60,12 @@ footer:
 
 - **Invite Teammate** — opens the invite flow so you can add collaborators
   to your workspace.
+- **Slack Notifications** — opens a settings modal to configure Slack
+  Incoming Webhook notifications for ticket status changes. Gated by the
+  `slackTicketNotifications` LaunchDarkly flag. See
+  [LaunchDarkly](./integrations/launchdarkly.md) for flag details and
+  [API routes → Slack Integration](./api/routes.md#slack-integration--appsapisrcroutesslackintegrationsts)
+  for the endpoint spec.
 - **Docs** — opens the Content Studio documentation site in a new browser
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always

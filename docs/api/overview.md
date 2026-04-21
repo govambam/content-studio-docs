@@ -34,13 +34,14 @@ app.get("/api/health", (c) => c.json({
   release: process.env.RELEASE_SHA ?? null,
 }));
 
-app.route("/api/labels",         labels);
-app.route("/api/projects",       projects);
-app.route("/api",                tickets);       // ticket + activity routes
-app.route("/api",                comments);      // comment routes
-app.route("/api",                assets);        // asset routes
-app.route("/api/invites",        invites);
-app.route("/api/webhooks/sentry", sentryWebhook);
+app.route("/api/labels",              labels);
+app.route("/api/projects",            projects);
+app.route("/api",                     tickets);       // ticket + activity routes
+app.route("/api",                     comments);      // comment routes
+app.route("/api",                     assets);        // asset routes
+app.route("/api/invites",             invites);
+app.route("/api/webhooks/sentry",     sentryWebhook);
+app.route("/api/slack-integration",   slackIntegrations);
 ```
 
 **Why `./instrument.js` is imported first:** Sentry's SDK patches Node

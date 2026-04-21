@@ -313,3 +313,70 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Slack Integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. Manages a **singleton** Slack
+Incoming Webhook configuration stored in the `slack_integrations` table.
+The webhook URL is **write-only** — it is never returned to the client.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns a redacted summary of the current configuration. If no
+integration row exists, returns a default summary with `configured: false`.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>` where:
+```ts
+interface SlackIntegrationSummary {
+  configured: boolean;
+  channel_name: string;
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];   // e.g. ["in_review", "done"]
+  updated_at: string | null;
+}
+```
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Create or update the Slack integration (upsert on the singleton
+constraint).
+
+**Body** (`upsertSlackIntegrationSchema`):
+```ts
+{
+  webhook_url: string;         // must start with "https://hooks.slack.com/"
+  channel_name?: string;       // display-only label, max 80 chars, defaults to ""
+  enabled?: boolean;           // defaults to true
+  enabled_statuses?: ContentStatus[];  // 1–4 unique statuses; defaults to ["in_review", "done"]
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Removes the integration row. Returns the default (unconfigured) summary.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### Notification flow <span class="badge-new">NEW</span>
+
+When a ticket's status changes via `PUT /api/tickets/:id`, the handler
+fires a **background** (fire-and-forget) call to
+`notifyTicketStatusChange()` in `apps/api/src/services/slackNotifier.ts`.
+The notifier:
+
+1. Loads the singleton integration row from the database.
+2. Checks that `enabled` is `true` **and** the new status is in
+   `enabled_statuses`.
+3. Builds a Slack Block Kit payload containing the ticket title, project
+   name, new status, and a deep-link button back to the ticket.
+4. POSTs to the stored webhook URL.
+5. On success, the caller records a `slack_notification_posted` activity
+   event on the ticket.
+
+**Failure handling:** POST failures (non-2xx responses or network errors)
+are logged but **swallowed** — there is no retry mechanism. The activity
+event is only written on success.
