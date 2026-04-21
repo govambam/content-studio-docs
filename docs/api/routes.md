@@ -282,6 +282,51 @@ flow — see [Sentry](../integrations/sentry.md).
 
 ---
 
+## Slack Integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. The integration is a singleton —
+there is exactly one config row per deployment. The webhook URL is
+**write-only**: the GET endpoint returns a redacted summary so the secret
+never reaches the browser. See [Slack integration](../integrations/slack.md)
+for the full feature overview.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns the current config as a redacted summary.
+**Response:** `ApiResponse<SlackIntegrationSummary>` where:
+```ts
+interface SlackIntegrationSummary {
+  configured: boolean;      // true if a row exists
+  channel_name: string;
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];
+  updated_at: string | null;
+}
+```
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Upsert the singleton config. Creates the row on first call; updates on
+subsequent calls (Supabase `upsert` with `onConflict: "singleton"`).
+**Body** (`upsertSlackIntegrationSchema`):
+```ts
+{
+  webhook_url: string;                     // must start with "https://hooks.slack.com/"
+  channel_name?: string;                   // display-only, max 80 chars, default ""
+  enabled?: boolean;                       // default true
+  enabled_statuses?: ContentStatus[];      // 1–4 statuses, no duplicates, default ["in_review","done"]
+}
+```
+**Response:** `ApiResponse<SlackIntegrationSummary>` (redacted — no webhook URL).
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Removes the singleton row. Subsequent GETs will return
+`{ configured: false, … }`.
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+---
+
 ## Sentry webhook — `apps/api/src/routes/sentryWebhook.ts`
 
 ### `POST /api/webhooks/sentry`
