@@ -112,6 +112,23 @@ See [Sentry](./sentry.md) for the full error-capture flow and
 [API routes → Invites](../api/routes.md#invites--appsapisrcroutesinvitests)
 for the endpoint spec.
 
+## The `slack-ticket-notifications` flag <span class="badge-new">NEW</span>
+
+Gates the **Slack** button in the sidebar that opens the Slack integration
+configuration modal.
+
+| Property | Value |
+|---|---|
+| LD key | `slack-ticket-notifications` |
+| Key in code (camelCase) | `slackTicketNotifications` |
+| Type | Boolean |
+| Default when unresolved | `false` |
+| Controls | Whether `<SlackIntegrationButton>` renders in the sidebar (returns `null` when off) |
+| Depends on | Nothing — the API routes exist regardless of the flag; this only gates the UI entry point. |
+
+The component lives in `apps/web/src/components/SlackIntegrationButton.tsx`
+and follows the same `useFlags()` pattern as `InviteTeammateButton`.
+
 ## Env vars it reads
 
 - `VITE_LD_CLIENT_ID` — override the hardcoded client-side ID. Optional.
