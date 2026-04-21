@@ -112,6 +112,45 @@ See [Sentry](./sentry.md) for the full error-capture flow and
 [API routes → Invites](../api/routes.md#invites--appsapisrcroutesinvitests)
 for the endpoint spec.
 
+## The `slack-ticket-notifications` flag <span class="badge-new">NEW</span>
+
+Gates the Slack ticket-notification UI in the sidebar. When on, a
+**Slack Notifications** button appears; clicking it opens a modal where
+the operator configures an incoming webhook.
+
+| Property | Value |
+|---|---|
+| LD key | `slack-ticket-notifications` |
+| Key in code (camelCase) | `slackTicketNotifications` |
+| Type | Boolean |
+| Default when unresolved | `false` |
+| Controls | Whether `<SlackIntegrationButton>` renders in the sidebar |
+
+`apps/web/src/components/SlackIntegrationButton.tsx`:
+
+```tsx
+import { useFlags } from "launchdarkly-react-client-sdk";
+import { SlackIntegrationModal } from "./SlackIntegrationModal";
+
+export function SlackIntegrationButton() {
+  const flags = useFlags();
+  const enabled = Boolean(flags["slackTicketNotifications"]);
+  const [open, setOpen] = useState(false);
+
+  if (!enabled) return null;
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Slack Notifications</button>
+      {open && <SlackIntegrationModal onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+```
+
+See [Slack ticket notifications](./slack.md) for the full integration
+docs.
+
 ## Env vars it reads
 
 - `VITE_LD_CLIENT_ID` — override the hardcoded client-side ID. Optional.
