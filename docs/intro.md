@@ -64,6 +64,9 @@ footer:
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
   visible (not gated by a feature flag).
+- **Slack** — opens the Slack integration modal where you can configure a
+  webhook for ticket status change notifications. This button is gated
+  behind the `slackTicketNotifications` LaunchDarkly flag.
 
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
@@ -76,6 +79,9 @@ The `DocsButton` component lives in
   a user-facing error ref maps 1:1 to a Sentry event.
 - **LaunchDarkly** (`launchdarkly-react-client-sdk` in the web app) gates
   demo-only UI behind the `demoErrorTriggerButton` flag.
+- **Slack notifications** — when configured, the API posts Block Kit messages
+  to a Slack Incoming Webhook on ticket status changes. See
+  [Slack integration](./integrations/slack.md).
 - **pino** structured logs on the API, with a base block that includes
   `RELEASE_SHA` so logs can be correlated to deploys.
 
@@ -87,6 +93,7 @@ The `DocsButton` component lives in
 - [Every route in `apps/api/src/routes/`](./api/routes.md)
 - [Sentry wiring](./integrations/sentry.md)
 - [LaunchDarkly wiring](./integrations/launchdarkly.md)
+- [Slack ticket notifications](./integrations/slack.md)
 - [Railway deployment (api via Nixpacks, web via Dockerfile)](./deployment/railway.md)
 
 If anything on this site disagrees with the code in

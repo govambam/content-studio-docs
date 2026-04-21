@@ -159,6 +159,12 @@ events for whichever fields actually changed. `sort_order` changes are
 intentionally **not** recorded (drag-and-drop would flood the feed).
 **Response:** `ApiResponse<Ticket>`.
 
+When a status change occurs, the API also fires an asynchronous Slack
+notification if the Slack integration is configured and the new status is in
+its `enabled_statuses` list. On successful delivery a
+`slack_notification_posted` activity event is recorded. See
+[Slack integration](../integrations/slack.md).
+
 ### `GET /api/tickets/:ticketId/activity`
 Merged, reverse-chronological feed of activity events + comments for a
 ticket.
@@ -313,3 +319,42 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Slack integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+Singleton CRUD for the Slack webhook configuration. All routes are mounted
+at `/api/slack-integration`. The API never returns the stored `webhook_url`
+— responses use `SlackIntegrationSummary`.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns the current integration summary, or a default "not configured"
+summary if no row exists.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Upsert the configuration. If no row exists one is created; if one already
+exists it is updated. `webhook_url` is optional on update — omit it (or
+send an empty string) to keep the previously stored URL.
+
+**Body** (`slackIntegrationSchema`):
+```ts
+{
+  webhook_url?: string;                 // Slack Incoming Webhook URL
+  channel_name: string;                 // e.g. "#content-updates"
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];    // e.g. ["in_review", "done"]
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration. Returns success even if no row existed.
+
+**Response:** `ApiResponse<null>`.
