@@ -313,3 +313,58 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Slack Integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+Mounted at `/api/slack-integration`. Manages the singleton Slack
+incoming-webhook configuration used by the ticket notification system.
+
+The webhook URL is a bearer credential — the `GET` endpoint returns a
+redacted `SlackIntegrationSummary` (with `configured: boolean` instead
+of the raw URL) so the secret never reaches the browser.
+
+All reads and writes go through the Supabase **service role**; the
+`authenticated` role has no RLS policies on `slack_integrations`.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns the current config summary. If no row exists yet, returns a
+default summary with `configured: false`.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>` where:
+
+```ts
+interface SlackIntegrationSummary {
+  configured: boolean;
+  channel_name: string;
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];
+  updated_at: string | null;
+}
+```
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Create or update the integration (upsert on `singleton = true`).
+
+**Body** (`upsertSlackIntegrationSchema`):
+
+```ts
+{
+  webhook_url: string;          // must start with "https://hooks.slack.com/"
+  channel_name?: string;        // display-only label, max 80 chars, default ""
+  enabled?: boolean;            // default true
+  enabled_statuses?: ContentStatus[];  // 1–4 unique statuses, default ["in_review","done"]
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration row. Returns a default summary with
+`configured: false`.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
