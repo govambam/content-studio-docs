@@ -112,6 +112,24 @@ See [Sentry](./sentry.md) for the full error-capture flow and
 [API routes → Invites](../api/routes.md#invites--appsapisrcroutesinvitests)
 for the endpoint spec.
 
+## The `slack-ticket-notifications` flag <span class="badge-new">NEW</span>
+
+Gates the **Slack Notifications** button in the sidebar. When off,
+`SlackIntegrationButton` returns `null` — the integration settings are
+completely hidden.
+
+| Property | Value |
+|---|---|
+| LD key | `slack-ticket-notifications` |
+| Key in code (camelCase) | `slackTicketNotifications` |
+| Type | Boolean |
+| Default when unresolved | `false` |
+| Controls | Whether `<SlackIntegrationButton>` renders in the sidebar |
+| Demo flow | Flag on → user clicks "Slack Notifications" → modal opens → operator configures webhook + statuses → ticket status changes post to Slack |
+
+See [Slack ticket notifications](./slack.md) for the full integration
+guide.
+
 ## Env vars it reads
 
 - `VITE_LD_CLIENT_ID` — override the hardcoded client-side ID. Optional.

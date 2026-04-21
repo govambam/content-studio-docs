@@ -60,6 +60,9 @@ footer:
 
 - **Invite Teammate** — opens the invite flow so you can add collaborators
   to your workspace.
+- **Slack Notifications** — opens a modal to configure Slack incoming
+  webhook notifications for ticket status changes. Gated behind the
+  `slackTicketNotifications` LaunchDarkly flag.
 - **Docs** — opens the Content Studio documentation site in a new browser
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
@@ -76,6 +79,9 @@ The `DocsButton` component lives in
   a user-facing error ref maps 1:1 to a Sentry event.
 - **LaunchDarkly** (`launchdarkly-react-client-sdk` in the web app) gates
   demo-only UI behind the `demoErrorTriggerButton` flag.
+- **Slack** — optional per-deployment integration that posts Block Kit
+  messages to a configured incoming webhook when tickets change status.
+  See [Slack ticket notifications](./integrations/slack.md).
 - **pino** structured logs on the API, with a base block that includes
   `RELEASE_SHA` so logs can be correlated to deploys.
 
@@ -87,6 +93,7 @@ The `DocsButton` component lives in
 - [Every route in `apps/api/src/routes/`](./api/routes.md)
 - [Sentry wiring](./integrations/sentry.md)
 - [LaunchDarkly wiring](./integrations/launchdarkly.md)
+- [Slack ticket notifications](./integrations/slack.md)
 - [Railway deployment (api via Nixpacks, web via Dockerfile)](./deployment/railway.md)
 
 If anything on this site disagrees with the code in
