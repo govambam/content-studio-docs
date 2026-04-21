@@ -26,10 +26,7 @@ const sidebars = {
       type: 'category',
       label: 'Integrations',
       collapsed: false,
-      items: [
-        'integrations/sentry',
-        'integrations/launchdarkly',
-      ],
+      items: ['integrations/sentry', 'integrations/launchdarkly', 'integrations/slack'],
     },
     {
       type: 'category',

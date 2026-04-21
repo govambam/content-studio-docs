@@ -313,3 +313,52 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Slack integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. Config is a singleton row — one
+integration per deployment.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns a redacted summary of the current configuration. The webhook URL
+is **never** included in the response.
+
+**Response:**
+`ApiResponse<SlackIntegrationSummary>`
+
+Where `SlackIntegrationSummary` is:
+```ts
+{
+  configured: boolean;
+  channel_name: string;
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];  // e.g. ["in_review", "done"]
+  updated_at: string | null;
+}
+```
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Create or update the Slack integration (upsert on the singleton row).
+
+**Body** (`upsertSlackIntegrationSchema`):
+```ts
+{
+  webhook_url: string;                // required
+  channel_name: string;               // display-only label
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];  // subset of valid statuses
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration. Deletes the singleton row and returns the
+default (unconfigured) summary.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
