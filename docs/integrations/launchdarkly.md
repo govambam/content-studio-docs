@@ -118,3 +118,19 @@ for the endpoint spec.
 - `VITE_RELEASE_SHA` — passed as `application.version`. Optional.
 
 Full list on the [Env vars page](../getting-started/env-vars.md).
+
+## The `slack-ticket-notifications` flag <span class="badge-new">NEW</span>
+
+This flag gates the **Slack Notifications** sidebar button, which opens
+a modal for configuring the Slack incoming-webhook integration.
+
+| Property | Value |
+|---|---|
+| LD key | `slack-ticket-notifications` |
+| Key in code (camelCase) | `slackTicketNotifications` |
+| Type | Boolean |
+| Default when unresolved | `false` (`Boolean(flags["slackTicketNotifications"])` coerces `undefined` → `false`) |
+| Controls | Whether `<SlackIntegrationButton>` renders in the sidebar (returns `null` when off) |
+
+See [Slack integration](./slack.md) for the full feature documentation
+and [API routes → Slack Integration](../api/routes.md#slack-integration--appsapisrcroutesslackintegrationsts) for the endpoint spec.

@@ -252,6 +252,57 @@ event.
 
 ---
 
+## Slack Integration — `apps/api/src/routes/slackIntegrations.ts` <span class="badge-new">NEW</span>
+
+All mounted at `/api/slack-integration`. Manages a **singleton** row in
+`slack_integrations` that stores the Slack Incoming Webhook configuration.
+
+The webhook URL is **write-only** — it is accepted on `PUT` but never
+returned by `GET`. The `GET` response returns a redacted summary
+(`SlackIntegrationSummary`) so the UI can show config state without
+exposing the secret.
+
+### `GET /api/slack-integration` <span class="badge-new">NEW</span>
+
+Returns the current integration summary (without the webhook URL).
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`:
+```ts
+{
+  configured: boolean;
+  channel_name: string;
+  enabled: boolean;
+  enabled_statuses: ContentStatus[];  // e.g. ["in_review", "done"]
+  updated_at: string | null;
+}
+```
+
+### `PUT /api/slack-integration` <span class="badge-new">NEW</span>
+
+Upsert the integration (singleton row). Creates or updates the webhook
+URL, channel name, enabled flag, and allowed statuses.
+
+**Body** (`upsertSlackIntegrationSchema`):
+```ts
+{
+  webhook_url: string;
+  channel_name?: string;
+  enabled?: boolean;
+  enabled_statuses?: ContentStatus[];
+}
+```
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+### `DELETE /api/slack-integration` <span class="badge-new">NEW</span>
+
+Remove the integration entirely. Returns a reset summary with
+`configured: false`.
+
+**Response:** `ApiResponse<SlackIntegrationSummary>`.
+
+---
+
 ## Invites — `apps/api/src/routes/invites.ts`
 
 Mounted at `/api/invites`. Demo-only; surfaces in the UI only when the
