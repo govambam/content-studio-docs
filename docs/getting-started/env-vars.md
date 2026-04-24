@@ -20,7 +20,7 @@ grepping `apps/api/src/` for `process.env.*`.
 | `SUPABASE_SERVICE_ROLE_KEY` | **yes** (boot throws without it) | `apps/api/src/db/supabase.ts` | Service-role key. **Server-only** — never shipped to the browser. |
 | `SENTRY_DSN` | **required in production** (boot throws); optional in dev | `apps/api/src/instrument.ts` | Sentry DSN for `@sentry/node`. Omit locally and the API logs `[sentry] SENTRY_DSN not set; error reporting disabled` and continues. |
 | `NODE_ENV` | optional (defaults to `"development"`) | `apps/api/src/instrument.ts` | Drives the Sentry `environment` tag and the "require DSN in prod" check. |
-| `FRONTEND_URL` | optional (defaults to `http://localhost:5173`) | `apps/api/src/index.ts` | CORS `origin` allowlist. Set to the web app's public URL in prod. |
+| `FRONTEND_URL` | optional (defaults to `http://localhost:5173`) | `apps/api/src/index.ts`, `apps/api/src/services/slackNotifier.ts` | CORS `origin` allowlist. Set to the web app's public URL in prod. |
 | `PORT` | optional (defaults to `3001`) | `apps/api/src/index.ts` | HTTP port the Hono server binds to. Railway injects this. |
 | `RELEASE_SHA` | optional | `apps/api/src/index.ts`, `instrument.ts` | Commit SHA. Surfaced in `/api/health`, pino's base log block, and the Sentry `release` tag. `railway.toml` maps `RAILWAY_GIT_COMMIT_SHA` → `RELEASE_SHA` at deploy time. |
 | `MACROSCOPE_WEBHOOK_URL` | **required for the Sentry webhook route** (throws on request) | `apps/api/src/routes/sentryWebhook.ts` | URL Macroscope exposes for remote-trigger ingestion. |
