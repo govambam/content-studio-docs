@@ -4,12 +4,13 @@ sidebar_position: 1
 
 # Railway
 
-Content Studio deploys as **two Railway services** from the same monorepo:
+Content Studio deploys as **three Railway services** from the same monorepo:
 
 | Service | Builder | Source |
 |---|---|---|
 | **api** | Nixpacks (Railway default) | Repo root (`railway.toml` at the top of the tree) |
 | **web** | Docker | `apps/web/Dockerfile` |
+| **payments-api** | Nixpacks | `apps/payments-api/` (`railway.toml` inside that directory) |
 
 Both services redeploy on push to `main` in
 [`govambam/content-studio`](https://github.com/govambam/content-studio).
@@ -66,6 +67,46 @@ Optional:
 - `SLACK_INVESTIGATING_WEBHOOK_URL`
 
 `PORT` is injected by Railway — don't set it manually.
+
+## payments-api — Nixpacks <span class="badge-new">NEW</span>
+
+`apps/payments-api/railway.toml`:
+
+```toml
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[deploy.variables]
+RELEASE_SHA = "${{RAILWAY_GIT_COMMIT_SHA}}"
+```
+
+Same Nixpacks + healthcheck pattern as the main API. The healthcheck path
+is `/health` (no `/api` prefix — this service mounts routes at the root).
+
+### Required env vars on the payments-api service
+
+Set these in the Railway dashboard (see
+[Env vars reference](../getting-started/env-vars.md) for the full
+story):
+
+- `DATABASE_URL`
+- `SENTRY_DSN` (required when `NODE_ENV=production`)
+- `NODE_ENV=production`
+
+Optional:
+
+- `LOG_LEVEL`
+- `GOOGLE_APPLICATION_CREDENTIALS` + `GCP_PROJECT_ID` (for GCP Cloud
+  Logging — see [Env vars reference](../getting-started/env-vars.md))
+
+`PORT` and `RELEASE_SHA` are injected by Railway — don't set them
+manually.
 
 ## web — Dockerfile
 

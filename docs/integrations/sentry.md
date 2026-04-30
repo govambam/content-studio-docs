@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Sentry
 
-Content Studio uses `@sentry/node` on the API side. There is **no** Sentry
+Content Studio uses `@sentry/node` on both the main API and the payments API. There is **no** Sentry
 SDK on the web side today — browser errors don't surface in Sentry. If
 that changes, add a section here.
 
@@ -46,6 +46,36 @@ Two non-obvious choices:
 - **Production fails closed.** If `NODE_ENV=production` and `SENTRY_DSN`
   is unset, the API refuses to boot. Locally it prints a warning and
   continues.
+
+## Payments API initialization <span class="badge-new">NEW</span>
+
+`apps/payments-api/src/instrument.ts` mirrors the main API's setup:
+
+```ts
+import * as Sentry from "@sentry/node";
+
+const dsn = process.env.SENTRY_DSN;
+const environment = process.env.NODE_ENV || "development";
+
+if (!dsn) {
+  if (environment === "production") {
+    throw new Error("SENTRY_DSN is required in production");
+  }
+  console.warn("[sentry] SENTRY_DSN not set; error reporting disabled");
+} else {
+  Sentry.init({
+    dsn,
+    environment,
+    tracesSampleRate: 0.1,
+    release: process.env.RELEASE_SHA || undefined,
+  });
+}
+
+export { Sentry };
+```
+
+Same fail-closed-in-prod behavior. Errors are captured in the global
+`app.onError` handler in `apps/payments-api/src/index.ts`.
 
 ## What gets captured
 

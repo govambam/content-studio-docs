@@ -43,6 +43,23 @@ SENTRY_DSN=...
 is copied into `apps/web/.env.local` as `VITE_SUPABASE_ANON_KEY` for the web
 app's Realtime client.
 
+## Payments API (`apps/payments-api`) <span class="badge-new">NEW</span>
+
+Like the main API, the payments API reads vars directly from `process.env` at
+the call site. This is a separate service with its own `railway.toml` and
+deployment.
+
+| Var | Required? | Read from | Purpose |
+|---|---|---|---|
+| `DATABASE_URL` | **yes** | `apps/payments-api/src/lib/db.ts` | Postgres connection string. The payments API connects via `pg.Pool` directly — it does not use the Supabase client. |
+| `SENTRY_DSN` | **required in production** (boot throws); optional in dev | `apps/payments-api/src/instrument.ts` | Sentry DSN for `@sentry/node`. Same fail-closed-in-prod behavior as the main API. |
+| `NODE_ENV` | optional (defaults to `"development"`) | `apps/payments-api/src/instrument.ts` | Drives the Sentry `environment` tag and the "require DSN in prod" check. |
+| `PORT` | optional (defaults to `3002`) | `apps/payments-api/src/index.ts` | HTTP port the Hono server binds to. Railway injects this. |
+| `RELEASE_SHA` | optional | `apps/payments-api/src/index.ts`, `instrument.ts` | Commit SHA. Surfaced in `/health`, pino's base log block, and the Sentry `release` tag. `railway.toml` maps `RAILWAY_GIT_COMMIT_SHA` → `RELEASE_SHA`. |
+| `LOG_LEVEL` | optional (defaults to `"info"` in production, `"debug"` otherwise) | `apps/payments-api/src/lib/logger.ts` | Pino log level. |
+| `GOOGLE_APPLICATION_CREDENTIALS` | optional (GCP log shipping disabled without it) | `apps/payments-api/src/lib/logger.ts` | Path to a GCP service-account JSON key file. When set, logs are shipped to GCP Cloud Logging under log name `payments-api` in addition to stdout. |
+| `GCP_PROJECT_ID` | optional | `apps/payments-api/src/lib/logger.ts` | Overrides the GCP project ID for Cloud Logging. If omitted, the client library infers it from the credentials file. |
+
 ## Web (`apps/web`, Vite)
 
 Vite exposes any var prefixed with `VITE_` to client code via
