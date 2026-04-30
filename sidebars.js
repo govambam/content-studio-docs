@@ -28,6 +28,7 @@ const sidebars = {
       collapsed: false,
       items: [
         'integrations/sentry',
+        'integrations/gcp-cloud-logging',
         'integrations/launchdarkly',
       ],
     },

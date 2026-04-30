@@ -313,3 +313,52 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## Payments API — `apps/payments-api` <span class="badge-new">NEW</span>
+
+The payments API is a separate Hono service (`apps/payments-api/src/index.ts`)
+that runs on port 3002. It has its own middleware stack (request-context and
+security-headers) and connects directly to Postgres via `DATABASE_URL` — it
+does **not** use the Supabase client.
+
+**Envelope:** responses do **not** follow the `ApiResponse<T>` envelope used by
+the main API. Each route returns its own shape directly.
+
+### `GET /health` <span class="badge-new">NEW</span>
+
+Liveness check. `railway.toml` sets `healthcheckPath = "/health"`.
+
+**Response 200:**
+```json
+{ "status": "ok", "service": "payments-api", "release": "<sha|null>" }
+```
+
+### `POST /charge` <span class="badge-new">NEW</span>
+
+Records a charge with idempotency support. If the same `idempotencyKey` has
+been seen before, the original response is returned without inserting a new
+row.
+
+**Body** (`ChargeBodySchema`):
+```ts
+{
+  amount: number;        // positive integer
+  currency: string;      // exactly 3 characters (e.g. "usd")
+  customerId: string;    // non-empty
+  idempotencyKey: string; // non-empty
+}
+```
+
+**Response 200 (new charge):**
+```json
+{ "id": "<uuid>", "amount": 500, "currency": "usd", "status": "succeeded" }
+```
+
+**Response 200 (idempotent replay):** same shape as original.
+
+**Response 400:**
+```json
+{ "error": "invalid request body", "issues": [ … ] }
+```
