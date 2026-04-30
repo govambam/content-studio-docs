@@ -78,6 +78,19 @@ baked into the static bundle. Changing a `VITE_*` var in Railway requires
 a **rebuild**, not just a restart.
 :::
 
+## Payments API (`apps/payments-api`) <span class="badge-new">NEW</span>
+
+The payments API has its own logger that ships structured logs to GCP
+Cloud Logging. See [GCP Cloud Logging](../integrations/gcp-cloud-logging.md)
+for the full write-up. The credential-related env vars are:
+
+| Var | Required? | Read from | Purpose |
+|---|---|---|---|
+| `GOOGLE_APPLICATION_CREDENTIALS_JSON` | optional | `apps/payments-api/src/lib/logger.ts` | Full JSON of the GCP service-account key. Use on platforms like Railway that lack a writable secrets path. Takes precedence over `GOOGLE_APPLICATION_CREDENTIALS`. |
+| `GOOGLE_APPLICATION_CREDENTIALS` | optional | `apps/payments-api/src/lib/logger.ts` | Path to a GCP service-account JSON key file. Fallback when `GOOGLE_APPLICATION_CREDENTIALS_JSON` is not set. |
+| `GCP_PROJECT_ID` | optional | `apps/payments-api/src/lib/logger.ts` | Overrides the GCP project ID. Inferred from credentials if omitted. |
+| `LOG_LEVEL` | optional | `apps/payments-api/src/lib/logger.ts` | Pino log level (`debug`, `info`, `warn`, `error`). Defaults to `info` in production, `debug` otherwise. |
+
 ## Worker (`apps/worker`)
 
 The worker scaffold exists but is not yet running tasks at the time this
