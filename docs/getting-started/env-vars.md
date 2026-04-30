@@ -27,6 +27,12 @@ grepping `apps/api/src/` for `process.env.*`.
 | `MACROSCOPE_WEBHOOK_SECRET` | **required for the Sentry webhook route** | `apps/api/src/routes/sentryWebhook.ts` | Shared secret sent as `X-Webhook-Secret` on the forward. |
 | `MACROSCOPE_SLACK_CHANNEL_ID` | optional (defaults to `C0ASQPY3GE7`) | `apps/api/src/routes/sentryWebhook.ts` | Slack channel the Macroscope agent should post its reply into. |
 | `SLACK_INVESTIGATING_WEBHOOK_URL` | optional | `apps/api/src/routes/sentryWebhook.ts` | If set, the API posts a ":mag: Macroscope is investigating …" message to this Slack Incoming Webhook before forwarding to Macroscope. Omit to skip the Slack preamble. |
+| `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` | **required for the PagerDuty webhook route** (throws on request) | `apps/api/src/routes/pagerdutyWebhook.ts` | URL Macroscope exposes for PagerDuty-triggered remote-trigger ingestion. |
+| `MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` | **required for the PagerDuty webhook route** | `apps/api/src/routes/pagerdutyWebhook.ts` | Shared secret sent as `X-Webhook-Secret` on the PagerDuty forward. |
+| `PAGERDUTY_WEBHOOK_SECRET` | optional | `apps/api/src/routes/pagerdutyWebhook.ts` | PagerDuty V3 subscription secret for HMAC-SHA256 signature verification. If unset, inbound webhooks are accepted without verification. |
+| `PAGERDUTY_API_TOKEN` | **required for the findings route** (returns 500 without it) | `apps/api/src/routes/pagerdutyFindings.ts` | PagerDuty REST API token used to create incident notes. |
+| `PAGERDUTY_FROM_EMAIL` | optional (defaults to `ivan@prasso.ai`) | `apps/api/src/routes/pagerdutyFindings.ts` | Email address sent in the PagerDuty `From` header when creating notes. PagerDuty requires a valid user email even with account-scoped tokens. |
+| `API_BASE_URL` | optional | `apps/api/src/routes/pagerdutyWebhook.ts` | Override the base URL used when building the `responseDestination` callback URL. If unset, derived from the incoming request's `scheme://host`. |
 
 ### What `.env.example` ships
 

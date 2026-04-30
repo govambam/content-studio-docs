@@ -313,3 +313,59 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## PagerDuty webhook (inbound) — `apps/api/src/routes/pagerdutyWebhook.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty` <span class="badge-new">NEW</span>
+
+Receiver for PagerDuty V3 webhooks. Only `incident.triggered` events are
+forwarded to the Macroscope Agent; every other event type (including
+`null` / missing `event_type`) is acknowledged with a `200` so PagerDuty
+does not retry, but no Agent run is triggered.
+
+**Signature verification:** if `PAGERDUTY_WEBHOOK_SECRET` is set, the
+route verifies `X-PagerDuty-Signature` (HMAC-SHA256, `v1=<hex>` scheme).
+If the secret is unset the request is accepted without verification
+(warn-and-accept, mirrors the Sentry webhook dev behavior).
+
+**Behavior:**
+1. Parse and validate the V3 webhook payload.
+2. Extract incident metadata (`id`, `title`, `service`, `urgency`,
+   `html_url`).
+3. Build a query string and a `responseDestination` callback URL
+   pointing to the findings route below.
+4. `POST` to `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` with
+   `X-Webhook-Secret: $MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY`.
+
+**Responses:**
+- `200 { data: { workflowId: string | null }, error: null }` — event
+  forwarded or intentionally ignored.
+- `400 { data: null, error: "invalid json" }` — unparseable body.
+- `401 { data: null, error: "invalid signature" }` — HMAC mismatch
+  (only when `PAGERDUTY_WEBHOOK_SECRET` is set).
+- `502 { data: null, error: "upstream forward failed" }` — Macroscope
+  returned a non-2xx.
+
+---
+
+## PagerDuty findings (outbound) — `apps/api/src/routes/pagerdutyFindings.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty/findings/:incidentId` <span class="badge-new">NEW</span>
+
+Callback endpoint that Macroscope's Agent posts its reply to (via the
+`responseDestination` URL configured by the inbound route). The route
+extracts the text from the reply body and creates an incident note on
+the originating PagerDuty incident using the PagerDuty REST API.
+
+**Outbound call:** `POST https://api.pagerduty.com/incidents/{incidentId}/notes`
+with `Authorization: Token token=$PAGERDUTY_API_TOKEN` and
+`From: $PAGERDUTY_FROM_EMAIL`.
+
+**Responses:**
+- `200 { data: { noteId: string | null }, error: null }` — note created.
+- `500 { data: null, error: "pagerduty api token not configured" }` —
+  `PAGERDUTY_API_TOKEN` is not set.
+- `502 { data: null, error: "pagerduty note create failed" }` —
+  PagerDuty returned a non-2xx.
