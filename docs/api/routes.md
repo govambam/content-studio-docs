@@ -313,3 +313,43 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## PagerDuty webhook — `apps/api/src/routes/pagerdutyWebhook.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty` <span class="badge-new">NEW</span>
+
+Receiver for PagerDuty V3 webhook events. Listens for `incident.triggered`
+events, extracts incident details, and forwards a smoke-test query to the
+Macroscope agent. The agent's response is delivered back via a callback URL
+rather than Slack.
+
+**Signature verification:**
+If `PAGERDUTY_WEBHOOK_SECRET` is set the handler verifies the inbound
+`X-PagerDuty-Signature` header using HMAC-SHA256 with timing-safe
+comparison. If the secret is not configured, the request is accepted
+without verification (a warning is logged).
+
+**Behavior:**
+1. Parse the PagerDuty V3 envelope and extract incident fields
+   (`incidentId`, `title`, `serviceName`, `urgency`, `htmlUrl`).
+2. Build a `responseDestination` containing a callback URL:
+   ```json
+   { "webhookUrl": "<API_BASE_URL>/api/webhooks/pagerduty/findings/<incidentId>" }
+   ```
+3. `POST` to `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` with
+   `X-Webhook-Secret: $MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` and a body of:
+   ```json
+   {
+     "query": "<smoke-test prompt referencing the incident>",
+     "responseDestination": { "webhookUrl": "<callback URL>" },
+     "timezone": "America/Chicago"
+   }
+   ```
+
+**Responses:**
+- `200 { data: { workflowId: string | null }, error: null }` — Macroscope
+  accepted the forward.
+- `502 { data: null, error: "upstream forward failed" }` — Macroscope
+  returned a non-2xx.
