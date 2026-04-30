@@ -41,6 +41,8 @@ app.route("/api",                comments);      // comment routes
 app.route("/api",                assets);        // asset routes
 app.route("/api/invites",        invites);
 app.route("/api/webhooks/sentry", sentryWebhook);
+app.route("/api/webhooks/pagerduty/findings", pagerdutyFindings);
+app.route("/api/webhooks/pagerduty", pagerdutyWebhook);
 ```
 
 **Why `./instrument.js` is imported first:** Sentry's SDK patches Node

@@ -313,3 +313,88 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## PagerDuty inbound webhook — `apps/api/src/routes/pagerdutyWebhook.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty` <span class="badge-new">NEW</span>
+
+Receiver for PagerDuty V3 webhooks. Handles `incident.triggered` events
+and forwards them to the Macroscope Agent via webhook trigger. Macroscope's
+reply is routed back to the outbound findings route below via
+`responseDestination`.
+
+**Signature verification:** if `PAGERDUTY_WEBHOOK_SECRET` is set, the
+handler validates the `X-PagerDuty-Signature` header (HMAC-SHA256,
+supporting multiple `v1=<hex>` entries for secret rotation). If the env
+var is unset, the request is accepted without verification (logged as a
+warning).
+
+**Behavior:**
+1. Parse the V3 webhook payload and extract the incident summary
+   (id, title, service name, urgency, URL).
+2. If `event_type` is not `incident.triggered`, return `200` with
+   `workflowId: null` (ack without forwarding, so PagerDuty doesn't retry).
+3. Build a query string with a structural `[INCIDENT_ID:<id>]` tag
+   prepended. This tag is how the outbound findings route recovers the
+   incident ID from Macroscope's echoed reply.
+4. Derive a static callback URL: `<API_BASE_URL or request origin>/api/webhooks/pagerduty/findings`.
+   The URL is static (no per-incident path segment) because Macroscope's
+   webhook allowlist uses strict literal matching.
+5. `POST` to `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` with
+   `X-Webhook-Secret: $MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` and body:
+   ```json
+   {
+     "query": "[INCIDENT_ID:<id>] <prompt text>",
+     "responseDestination": { "webhookUrl": "<static callback URL>" },
+     "timezone": "America/Chicago"
+   }
+   ```
+
+**Responses:**
+- `200 { data: { workflowId: string | null }, error: null }` — forwarded
+  successfully or acked (non-triggered event).
+- `401 { data: null, error: "invalid signature" }` — signature check
+  failed.
+- `400 { data: null, error: "invalid json" }` — unparseable payload.
+- `502 { data: null, error: "upstream forward failed" }` — Macroscope
+  returned non-2xx.
+- `500` (thrown) — `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` or
+  `MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` is unset.
+
+---
+
+## PagerDuty findings (outbound) — `apps/api/src/routes/pagerdutyFindings.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty/findings` <span class="badge-new">NEW</span>
+
+Callback endpoint that receives Macroscope's Agent reply and posts it as a
+note on the originating PagerDuty incident.
+
+The incident ID is **not** in the URL path. Macroscope's webhook allowlist
+uses strict literal matching, so the relay uses one static callback URL
+and encodes the incident ID inside the query text as `[INCIDENT_ID:<id>]`.
+Macroscope echoes the original `query` verbatim in its reply body, so this
+route regex-extracts the ID from the echoed `query` field.
+
+**Inbound body shape** (from Macroscope): `{ query, response, workflowId }`.
+The route also accepts `answer`, `message`, `text`, `output`, or `result`
+as fallback text fields. If no text field is found, the entire body is
+stringified.
+
+**Outbound PagerDuty Notes API call:**
+- `POST https://api.pagerduty.com/incidents/{id}/notes`
+- Auth: `Authorization: Token token=$PAGERDUTY_API_TOKEN`
+- Required header: `From: $PAGERDUTY_FROM_EMAIL` (defaults to
+  `ivan@prasso.ai`)
+- Body: `{ "note": { "content": "<reply text>" } }`
+
+**Responses:**
+- `200 { data: { noteId: string | null }, error: null }` — note created.
+- `400 { data: null, error: "incident id not found in macroscope reply" }`
+  — the `[INCIDENT_ID:...]` tag was not found in the echoed query.
+- `500 { data: null, error: "pagerduty api token not configured" }` —
+  `PAGERDUTY_API_TOKEN` is unset.
+- `502 { data: null, error: "pagerduty note create failed" }` — PagerDuty
+  returned non-2xx.
