@@ -313,3 +313,64 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## PagerDuty inbound webhook — `apps/api/src/routes/pagerdutyWebhook.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty`
+
+Receiver for PagerDuty V3 webhooks. Listens for `incident.triggered`
+events and relays them to Macroscope Agent for automated investigation.
+
+**Signature verification:** if `PAGERDUTY_WEBHOOK_SECRET` is set, the
+handler verifies the HMAC-SHA256 signature on the incoming request. When
+the secret is absent (local dev), verification is skipped.
+
+**Behavior:**
+1. Parse the V3 webhook body and extract the `incident.triggered` event.
+2. Build an agent query with the incident title, service name, and
+   PagerDuty incident URL.
+3. `POST` to `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` with
+   `X-Webhook-Secret: $MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` and a body
+   containing the query plus a `responseDestination` callback:
+   ```json
+   {
+     "query": "<agent prompt>",
+     "responseDestination": {
+       "url": "<API_BASE_URL>/api/webhooks/pagerduty/findings/<incidentId>"
+     }
+   }
+   ```
+4. Returns the upstream response to PagerDuty.
+
+**Responses:**
+- `200 { data: { relayed: true }, error: null }` — forwarded to Macroscope.
+- `400` — missing or unrecognised event type.
+- `401` — HMAC signature mismatch.
+- `502 { data: null, error: "upstream forward failed" }` — Macroscope
+  returned a non-2xx.
+
+---
+
+## PagerDuty findings callback — `apps/api/src/routes/pagerdutyFindings.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty/findings/:incidentId`
+
+Callback endpoint that Macroscope Agent hits after it finishes
+investigating a PagerDuty incident. Posts the findings as a note on the
+original PagerDuty incident.
+
+**Behavior:**
+1. Read the Macroscope response body containing the investigation
+   findings.
+2. Call the PagerDuty REST API
+   `POST /incidents/:incidentId/notes` with:
+   - `Authorization: Token token=$PAGERDUTY_API_TOKEN`
+   - `From: $PAGERDUTY_FROM_EMAIL`
+   - Body: `{ "note": { "content": "<findings>" } }`
+
+**Responses:**
+- `200 { data: { noted: true }, error: null }` — note posted.
+- `502 { data: null, error: "PagerDuty API error" }` — PagerDuty
+  returned a non-2xx.

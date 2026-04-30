@@ -27,6 +27,12 @@ grepping `apps/api/src/` for `process.env.*`.
 | `MACROSCOPE_WEBHOOK_SECRET` | **required for the Sentry webhook route** | `apps/api/src/routes/sentryWebhook.ts` | Shared secret sent as `X-Webhook-Secret` on the forward. |
 | `MACROSCOPE_SLACK_CHANNEL_ID` | optional (defaults to `C0ASQPY3GE7`) | `apps/api/src/routes/sentryWebhook.ts` | Slack channel the Macroscope agent should post its reply into. |
 | `SLACK_INVESTIGATING_WEBHOOK_URL` | optional | `apps/api/src/routes/sentryWebhook.ts` | If set, the API posts a ":mag: Macroscope is investigating …" message to this Slack Incoming Webhook before forwarding to Macroscope. Omit to skip the Slack preamble. |
+| `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` | **required for the PagerDuty webhook route** (throws on request) | `apps/api/src/routes/pagerdutyWebhook.ts` | Macroscope Agent webhook URL for PagerDuty-sourced incidents. |
+| `MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` | **required for the PagerDuty webhook route** | `apps/api/src/routes/pagerdutyWebhook.ts` | Shared secret sent as `X-Webhook-Secret` on the forward to Macroscope. |
+| `PAGERDUTY_API_TOKEN` | **required for the PagerDuty findings route** | `apps/api/src/routes/pagerdutyFindings.ts` | PagerDuty REST API token. Used to post investigation findings as incident notes. |
+| `PAGERDUTY_FROM_EMAIL` | optional (defaults to `ivan@prasso.ai`) | `apps/api/src/routes/pagerdutyFindings.ts` | Email address sent in the `From` header on PagerDuty REST API writes. |
+| `PAGERDUTY_WEBHOOK_SECRET` | optional in dev; **required in production** | `apps/api/src/routes/pagerdutyWebhook.ts` | HMAC-SHA256 secret for verifying inbound PagerDuty V3 webhook signatures. |
+| `API_BASE_URL` | optional | `apps/api/src/routes/pagerdutyWebhook.ts` | Override for the callback URL base sent to Macroscope in `responseDestination`. Defaults to the server's own origin. |
 
 ### What `.env.example` ships
 
