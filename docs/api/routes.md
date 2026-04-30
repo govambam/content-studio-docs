@@ -313,3 +313,62 @@ Internal Integration / Sentry App shape (nested under `data.issue` /
   accepted the forward.
 - `502 { data: null, error: "upstream forward failed" }` — Macroscope
   returned a non-2xx.
+
+---
+
+## PagerDuty webhook — `apps/api/src/routes/pagerdutyWebhook.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty` <span class="badge-new">NEW</span>
+
+Receiver for PagerDuty V3 webhooks. Processes `incident.triggered` events
+and forwards a structured investigation prompt to Macroscope.
+
+**Behavior:**
+1. If `PAGERDUTY_WEBHOOK_SECRET` is set, verify the HMAC-SHA256 signature
+   from PagerDuty's `x-pagerduty-signature` header. Return `401` on
+   mismatch.
+2. Extract incident ID, title, service name, and urgency from the webhook
+   payload.
+3. Build an investigation prompt tagged with `[INCIDENT_ID:<id>]` that
+   instructs the agent to use PagerDuty MCP, GCP Cloud Logging, Sentry,
+   and the codebase, and return **ROOT CAUSE / EVIDENCE / FIX PROMPT**.
+4. `POST` to `MACROSCOPE_WEBHOOK_URL_PAGERDUTY` with
+   `X-Webhook-Secret: $MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY` and a
+   `responseDestination.webhookUrl` callback pointing at
+   `/api/webhooks/pagerduty/findings`.
+
+**Responses:**
+- `200 { data: { workflowId: string | null }, error: null }` — forwarded
+  to Macroscope.
+- `401 { data: null, error: "signature verification failed" }` — HMAC
+  mismatch (when `PAGERDUTY_WEBHOOK_SECRET` is set).
+
+**Env vars:** `MACROSCOPE_WEBHOOK_URL_PAGERDUTY`,
+`MACROSCOPE_WEBHOOK_SECRET_PAGERDUTY`, `PAGERDUTY_WEBHOOK_SECRET`
+(optional).
+
+---
+
+## PagerDuty findings — `apps/api/src/routes/pagerdutyFindings.ts` <span class="badge-new">NEW</span>
+
+### `POST /api/webhooks/pagerduty/findings` <span class="badge-new">NEW</span>
+
+Callback endpoint that receives Macroscope's investigation results and
+writes them to a PagerDuty incident custom field.
+
+**Behavior:**
+1. Extract the incident ID from the echoed `query` via the
+   `[INCIDENT_ID:<id>]` regex.
+2. Read the reply from one of `answer`, `response`, or `message` fields.
+3. Truncate to 2 000 characters (PagerDuty paragraph field limit).
+4. `PUT /incidents/<id>/custom_fields/values` with `PAGERDUTY_API_TOKEN`
+   and `From: $PAGERDUTY_FROM_EMAIL` to write findings into the custom
+   field identified by `PAGERDUTY_INVESTIGATION_FIELD_ID`.
+
+**Responses:**
+- `200 { data: { incidentId: string, fieldId: string }, error: null }` —
+  findings written.
+- `400 { data: null, error: "..." }` — missing incident ID or reply text.
+
+**Env vars:** `PAGERDUTY_API_TOKEN`, `PAGERDUTY_FROM_EMAIL`,
+`PAGERDUTY_INVESTIGATION_FIELD_ID`.
