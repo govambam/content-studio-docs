@@ -180,7 +180,17 @@ Cascades assets, comments, activity events.
 Mounted at `/api`.
 
 ### `GET /api/tickets/:ticketId/comments`
-Oldest-first list.
+Oldest-first, paginated list.
+
+**Query parameters:** <span class="badge-new">NEW</span>
+
+| Param    | Type   | Default | Constraints        |
+|----------|--------|---------|--------------------|
+| `limit`  | number | `50`    | Clamped to max 100 |
+| `offset` | number | `0`    | —                  |
+
+Non-numeric values are ignored and the default is used instead.
+
 **Response:** `ApiResponse<Comment[]>`.
 
 ### `POST /api/tickets/:ticketId/comments`
