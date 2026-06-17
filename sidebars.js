@@ -15,6 +15,16 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Web',
+      collapsed: false,
+      items: [
+        'web/overview',
+        'web/ticket-detail-view',
+        'web/markdown',
+      ],
+    },
+    {
+      type: 'category',
       label: 'API',
       collapsed: false,
       items: [

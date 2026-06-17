@@ -83,6 +83,9 @@ The `DocsButton` component lives in
 
 - [Local dev setup](./getting-started/local-dev.md)
 - [Every env var the app reads](./getting-started/env-vars.md)
+- [Web app overview](./web/overview.md)
+- [Ticket detail view](./web/ticket-detail-view.md)
+- [Markdown rendering & editing](./web/markdown.md)
 - [API shape and conventions](./api/overview.md)
 - [Every route in `apps/api/src/routes/`](./api/routes.md)
 - [Sentry wiring](./integrations/sentry.md)
