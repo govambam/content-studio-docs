@@ -29,6 +29,7 @@ const sidebars = {
       items: [
         'integrations/sentry',
         'integrations/launchdarkly',
+        'integrations/macroscope-check-run-agents',
       ],
     },
     {
