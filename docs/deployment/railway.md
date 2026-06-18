@@ -151,6 +151,42 @@ baked into the JS bundle.
 - No healthcheck is configured in `railway.toml` for the web service —
   Railway's TCP check on port `3000` is sufficient for static serving.
 
+## payments-api — Nixpacks <span class="badge-new">NEW</span>
+
+`apps/payments-api/railway.toml`:
+
+```toml
+[deploy]
+healthcheckPath = "/health"
+
+[deploy.variables]
+RELEASE_SHA = "${{RAILWAY_GIT_COMMIT_SHA}}"
+```
+
+The service uses Railway's default Nixpacks builder. It:
+
+- Runs on default port `3002` (configurable via `PORT`).
+- Uses `/health` for Railway healthchecks.
+- Injects `RELEASE_SHA` from Railway's commit SHA.
+
+### Required env vars on the payments-api service <span class="badge-new">NEW</span>
+
+Set these in the Railway dashboard (see
+[Env vars reference](../getting-started/env-vars.md#payments-api-appspayments-api-) for the full
+story):
+
+- `DATABASE_URL` — Postgres connection string for the charges database.
+- `GOOGLE_APPLICATION_CREDENTIALS` — path to GCP service-account JSON.
+- `SENTRY_DSN` (required when `NODE_ENV=production`)
+- `NODE_ENV=production`
+
+Optional:
+
+- `GCP_PROJECT_ID` — override GCP project ID.
+- `LOG_LEVEL` — Pino log level (`info` by default in production).
+
+`PORT` is injected by Railway — don't set it manually.
+
 ## Promotion & rollbacks
 
 There is no staging environment checked into this repo. Deploys go

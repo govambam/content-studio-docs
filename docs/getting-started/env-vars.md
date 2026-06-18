@@ -78,6 +78,19 @@ baked into the static bundle. Changing a `VITE_*` var in Railway requires
 a **rebuild**, not just a restart.
 :::
 
+## Payments API (`apps/payments-api`) <span class="badge-new">NEW</span>
+
+| Var | Required? | Purpose |
+|---|---|---|
+| `PORT` | optional (defaults to `3002`) | HTTP port the Hono server binds to. Railway injects this. |
+| `NODE_ENV` | optional (defaults to `"development"`) | Set to `production` in prod. Production requires `SENTRY_DSN`. |
+| `RELEASE_SHA` | optional | Commit SHA surfaced in `/health`. `railway.toml` maps `RAILWAY_GIT_COMMIT_SHA` → `RELEASE_SHA`. |
+| `LOG_LEVEL` | optional | Pino log level. Defaults to `info` in production and `debug` otherwise. |
+| `SENTRY_DSN` | **required in production** | Sentry DSN for error reporting. Omit locally to disable. |
+| `DATABASE_URL` | **yes** | Postgres connection string for the charges database. |
+| `GOOGLE_APPLICATION_CREDENTIALS` | **yes** (for Cloud Logging) | Path to GCP service-account JSON file for Cloud Logging writes. |
+| `GCP_PROJECT_ID` | optional | Override GCP project ID. Falls back to the `project_id` in the service-account key. |
+
 ## Worker (`apps/worker`)
 
 The worker scaffold exists but is not yet running tasks at the time this
