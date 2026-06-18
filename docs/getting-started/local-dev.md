@@ -86,6 +86,24 @@ The root `package.json` script wiring:
 
 `dev:api` runs `tsx watch src/index.ts`; `dev:web` runs `vite`.
 
+### Running the Payments API locally <span class="badge-new">NEW</span>
+
+```bash
+# terminal 3 — Payments API on http://localhost:3002
+npm run dev:payments-api
+```
+
+Verify it's running:
+
+```bash
+curl http://localhost:3002/health
+# {"status":"ok","service":"payments-api","release":null}
+```
+
+The Payments API requires `DATABASE_URL` and `GOOGLE_APPLICATION_CREDENTIALS`
+to be set. See [Env vars](./env-vars.md#payments-api-appspayments-api-) for
+the full list.
+
 ## 4. Health-check
 
 With the API up:

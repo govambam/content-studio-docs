@@ -20,6 +20,7 @@ const sidebars = {
       items: [
         'api/overview',
         'api/routes',
+        'api/payments',
       ],
     },
     {

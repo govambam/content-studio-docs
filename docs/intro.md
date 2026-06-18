@@ -35,6 +35,7 @@ content-studio/
 |-------------|---------------------------------------------------------------|-------------------|
 | **web**     | React SPA served as static files. Talks to the API over HTTPS and to Supabase Realtime directly (for live Kanban updates). | Railway service, built from `apps/web/Dockerfile` |
 | **api**     | Hono HTTP server on Node. Owns all writes to Postgres via the Supabase service-role key, issues signed upload/download URLs for the `assets` bucket, and exposes `/api/webhooks/sentry` to forward issues to Macroscope. | Railway service, built with Nixpacks from the repo root |
+| **payments-api** | Standalone Hono service for charge processing. Validates charge requests, persists to Postgres with idempotent replay via `charge_idempotency`, and logs to Google Cloud Logging. | Railway service, default port 3002 |
 | **worker**  | Long-running Node process for async tasks (planned — the scaffold exists in `apps/worker/`). | Railway worker service |
 | **Supabase** | Managed Postgres + Storage + Realtime + Auth. Schema is owned by SQL migrations in `supabase/migrations/`. | Supabase cloud |
 
@@ -85,6 +86,7 @@ The `DocsButton` component lives in
 - [Every env var the app reads](./getting-started/env-vars.md)
 - [API shape and conventions](./api/overview.md)
 - [Every route in `apps/api/src/routes/`](./api/routes.md)
+- [Payments API service (`apps/payments-api`)](./api/payments.md)
 - [Sentry wiring](./integrations/sentry.md)
 - [LaunchDarkly wiring](./integrations/launchdarkly.md)
 - [Railway deployment (api via Nixpacks, web via Dockerfile)](./deployment/railway.md)
