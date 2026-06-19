@@ -87,6 +87,7 @@ The `DocsButton` component lives in
 - [Every route in `apps/api/src/routes/`](./api/routes.md)
 - [Sentry wiring](./integrations/sentry.md)
 - [LaunchDarkly wiring](./integrations/launchdarkly.md)
+- [Macroscope check run agents](./integrations/macroscope-check-run-agents.md)
 - [Railway deployment (api via Nixpacks, web via Dockerfile)](./deployment/railway.md)
 
 If anything on this site disagrees with the code in
