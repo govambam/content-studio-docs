@@ -15,6 +15,14 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Web app',
+      collapsed: false,
+      items: [
+        'web/home-board',
+      ],
+    },
+    {
+      type: 'category',
       label: 'API',
       collapsed: false,
       items: [
