@@ -64,9 +64,23 @@ footer:
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
   visible (not gated by a feature flag).
+- **Share Board** — copies the current board URL to your clipboard so you
+  can paste it elsewhere to share with teammates or bookmark it.
 
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
+
+### Share Board <span class="badge-new">NEW</span>
+
+Clicking the **Share Board** button in the sidebar footer copies the current
+board's URL to your clipboard using the browser clipboard API. You can then
+paste the URL in Slack, email, or any other app to share the board with a
+teammate.
+
+If the browser denies clipboard permission (some browsers require explicit
+user consent) or the page is served from an insecure origin (non-HTTPS), the
+copy will fail silently. In that case you can still copy the URL manually
+from the browser's address bar.
 
 ### Observability
 
