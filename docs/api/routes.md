@@ -116,6 +116,19 @@ so the delete + insert is atomic.
 Cascades tickets, assets, comments, activity events.
 **Response:** `ApiResponse<null>` (404 if missing).
 
+### `POST /api/projects/bulk-status` <span class="badge-new">NEW</span>
+Bulk-update the status of multiple projects in one call.
+**Body** (`bulkProjectStatusSchema`):
+```ts
+{
+  projectIds: string[];  // UUIDs, min 1, max 100, unique
+  status: "backlog" | "in_progress" | "in_review" | "done";
+}
+```
+**Response:** `ApiResponse<{ updated: number }>` where `data.updated` is the
+number of projects updated.
+**500:** `{ data: null, error: string }` on database errors.
+
 ---
 
 ## Tickets — `apps/api/src/routes/tickets.ts`
