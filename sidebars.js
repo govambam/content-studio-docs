@@ -4,6 +4,7 @@
 const sidebars = {
   docsSidebar: [
     'intro',
+    'sharing',
     {
       type: 'category',
       label: 'Getting Started',
