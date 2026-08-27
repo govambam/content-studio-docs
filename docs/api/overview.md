@@ -23,7 +23,7 @@ app.use("*", requestContext);
 app.use("*", securityHeaders);
 app.use("*", cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  allowHeaders: ["Content-Type", "Authorization", "x-client-id", "x-request-id"],
+  allowHeaders: ["Content-Type", "Authorization", "x-request-id"],
   exposeHeaders: ["x-request-id"],
 }));
 app.use("*", rateLimit);
@@ -56,7 +56,7 @@ Every request passes through four global middleware in order:
    response header.
 2. **`securityHeaders`** — sets the standard hardening headers.
 3. **`cors`** — allowlists `FRONTEND_URL` (or `http://localhost:5173`).
-   Request headers allowed: `Content-Type`, `Authorization`, `x-client-id`,
+   Request headers allowed: `Content-Type`, `Authorization`,
    `x-request-id`. `x-request-id` is also in `exposeHeaders` so the
    browser can read it off error responses.
 4. **`rateLimit`** — the `hono-rate-limiter` middleware.
@@ -116,6 +116,12 @@ it on the row or the activity event (as `updated_by_client` or
 `apps/web/src/lib/clientId.ts`) so Realtime broadcasts from the
 originating tab can be deduped on the client. The header is optional —
 it is stored as `null` when absent.
+
+:::note
+`x-client-id` is **not** in the CORS `allowHeaders` list. Browsers making
+cross-origin requests cannot send this header. Same-origin requests (e.g.,
+SSR or local dev with matching origins) can still include it.
+:::
 
 ## Not yet
 
