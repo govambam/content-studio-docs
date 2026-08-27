@@ -11,6 +11,7 @@ const sidebars = {
       items: [
         'getting-started/local-dev',
         'getting-started/env-vars',
+        'getting-started/creating-projects',
       ],
     },
     {
