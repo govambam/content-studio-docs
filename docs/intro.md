@@ -64,9 +64,15 @@ footer:
   tab. The button links to the hosted docs at
   `https://docs-production-40b1.up.railway.app/docs/intro`. It is always
   visible (not gated by a feature flag).
+- **Sharing Guide** — opens the [Sharing Guide](./sharing.md) in a new
+  browser tab. The button links to
+  `https://content-studio-docs.vercel.app/docs/sharing`. <span class="badge-new">NEW</span>
 
 The `DocsButton` component lives in
 `apps/web/src/components/DocsButton.tsx`.
+
+The `SharingGuideButton` component lives in
+`apps/web/src/components/SharingGuideButton.tsx`. <span class="badge-new">NEW</span>
 
 ### Observability
 
