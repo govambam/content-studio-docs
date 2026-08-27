@@ -15,6 +15,14 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Features',
+      collapsed: false,
+      items: [
+        'sharing',
+      ],
+    },
+    {
+      type: 'category',
       label: 'API',
       collapsed: false,
       items: [
